@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+enum JadwalHari {
+  SENIN
+  SELASA
+  RABU
+  KAMIS
+  JUMAT
+  SABTU
+  MINGGU
+}
+
+model Role {
+  id         Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  users      User[]
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @relation(fields: [role_id], references: [id])
+  role_id    Int
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  gurus      Guru[]
+  siswas     Siswa[]
+  absens     Absen[]
+}
+
+model Guru {
+  id          Int          @id @default(autoincrement())
+  nomor_induk String       @unique
+  user        User         @relation(fields: [user_id], references: [id])
+  user_id     Int
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now())
+  kelas       Kelas?
+  matpel      MatpelGuru[]
+}
+
+model Kelas {
+  id         Int      @id @default(autoincrement())
+  nama       String
+  guru       Guru?    @relation(fields: [guru_id], references: [id])
+  guru_id    Int?     @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  matpel     Matpel[]
+  jadwal     Jadwal[]
+  siswa      Siswa[]
+}
+
+model Matpel {
+  id          Int          @id @default(autoincrement())
+  nomor_induk String       @unique
+  nama        String
+  kelas       Kelas        @relation(fields: [kelas_id], references: [id])
+  kelas_id    Int
+  jadwal      Jadwal[]
+  guru        MatpelGuru[]
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now())
+}
+
+model MatpelGuru {
+  id         Int      @id @default(autoincrement())
+  keterangan String?
+  matpel     Matpel   @relation(fields: [matpel_id], references: [id])
+  matpel_id  Int
+  guru       Guru     @relation(fields: [guru_id], references: [id])
+  guru_id    Int
+  created_at DateTime @default(now())
+
+  @@unique([matpel_id, guru_id])
+}
+
+model Jadwal {
+  id         Int        @id @default(autoincrement())
+  hari       JadwalHari
+  kelas      Kelas      @relation(fields: [kelas_id], references: [id])
+  kelas_id   Int
+  matpel     Matpel     @relation(fields: [matpel_id], references: [id])
+  matpel_id  Int
+  created_at DateTime   @default(now())
+  updated_at DateTime   @default(now())
+
+  @@unique([kelas_id, matpel_id])
+}
+
+model Siswa {
+  id          Int      @id @default(autoincrement())
+  nomor_induk String   @unique
+  kelas       Kelas    @relation(fields: [kelas_id], references: [id])
+  kelas_id    Int
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     Int      @unique
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+}
+
+model Absen {
+  id         Int      @id @default(autoincrement())
+  latitude   Decimal  @db.Decimal(16, 16)
+  longitude  Decimal  @db.Decimal(16, 16)
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
