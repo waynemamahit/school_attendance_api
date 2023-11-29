@@ -10,7 +10,12 @@ export class ZodPipe implements PipeTransform {
       this.schema.parse(value);
     } catch (error) {
       throw new BadRequestException(
-        `Validation failed: ${error.errors.join('\n')}`,
+        error.errors.map(
+          (errItem: { message: string; path: string[] }) =>
+            `${errItem.message} ${errItem.path
+              .map((pathItem) => pathItem.split('_').join(' '))
+              .join(', ')}`,
+        ),
       );
     }
     return value;

@@ -4,16 +4,15 @@ import {
   NestMiddleware,
 } from '@nestjs/common';
 import cookie from 'cookie';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { CsrfService } from '../services/csrf.service';
+import { CsrfService } from './csrf.service';
 
 @Injectable()
 export class CsrfMiddleware implements NestMiddleware {
   constructor(private service: CsrfService) {}
 
-  async use(req: FastifyRequest, _res: FastifyReply, next: () => void) {
+  async use(req: any, _: any, next: () => void) {
     const token = req.headers['x-csrf-token'];
-    const key = cookie.parse(req.headers.cookie)['csrf_key'];
+    const key = cookie.parse(req.headers.cookie ?? '')['csrf_key'];
     const userToken = await this.service.cache.get(req.ip ?? '');
     for (const validator of [
       {

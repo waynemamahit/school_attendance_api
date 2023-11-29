@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CsrfService } from './csrf.service';
-import { csrfModuleConfig } from '../modules/csrf.module';
+import { csrfModuleConfig } from './csrf.module';
 
 describe('CsrfService', () => {
   let service: CsrfService;

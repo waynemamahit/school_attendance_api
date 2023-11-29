@@ -1,11 +1,13 @@
 import { Module, ModuleMetadata } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
-import AppController from './app.controller';
-import { AppService } from './app.service';
-import { CsrfModule } from './shared/modules/csrf.module';
+import { AuthModule } from './auth/auth.module';
 
 export const appModuleConfig: ModuleMetadata = {
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ThrottlerModule.forRoot([
       {
         name: 'long',
@@ -13,10 +15,8 @@ export const appModuleConfig: ModuleMetadata = {
         limit: 100,
       },
     ]),
-    CsrfModule,
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 };
 @Module(appModuleConfig)
 export class AppModule {}

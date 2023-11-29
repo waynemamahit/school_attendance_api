@@ -10,14 +10,20 @@ datasource db {
   url      = env("DB_URL")
 }
 
-enum JadwalHari {
-  SENIN
-  SELASA
-  RABU
-  KAMIS
-  JUMAT
-  SABTU
-  MINGGU
+enum ScheduleDay {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum AbsentCategory {
+  PRESENT
+  PERMIT
+  ALPHA
 }
 
 model Role {
@@ -31,92 +37,95 @@ model Role {
 model User {
   id         Int      @id @default(autoincrement())
   name       String
+  username   String   @unique
   email      String   @unique
   password   String
   role       Role     @relation(fields: [role_id], references: [id])
   role_id    Int
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
-  gurus      Guru[]
-  siswas     Siswa[]
-  absens     Absen[]
+  teacher    Teacher?
+  student    Student?
+  absents    Absent[]
 }
 
-model Guru {
-  id          Int          @id @default(autoincrement())
-  nomor_induk String       @unique
-  user        User         @relation(fields: [user_id], references: [id])
-  user_id     Int
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @default(now())
-  kelas       Kelas?
-  matpel      MatpelGuru[]
+model Teacher {
+  id           Int             @id @default(autoincrement())
+  id_number    String          @unique
+  user         User            @relation(fields: [user_id], references: [id])
+  user_id      Int             @unique
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @default(now())
+  school_class Class?
+  courses      TeacherCourse[]
 }
 
-model Kelas {
-  id         Int      @id @default(autoincrement())
-  nama       String
-  guru       Guru?    @relation(fields: [guru_id], references: [id])
-  guru_id    Int?     @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
-  matpel     Matpel[]
-  jadwal     Jadwal[]
-  siswa      Siswa[]
-}
-
-model Matpel {
-  id          Int          @id @default(autoincrement())
-  nomor_induk String       @unique
-  nama        String
-  kelas       Kelas        @relation(fields: [kelas_id], references: [id])
-  kelas_id    Int
-  jadwal      Jadwal[]
-  guru        MatpelGuru[]
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @default(now())
-}
-
-model MatpelGuru {
-  id         Int      @id @default(autoincrement())
-  keterangan String?
-  matpel     Matpel   @relation(fields: [matpel_id], references: [id])
-  matpel_id  Int
-  guru       Guru     @relation(fields: [guru_id], references: [id])
-  guru_id    Int
-  created_at DateTime @default(now())
-
-  @@unique([matpel_id, guru_id])
-}
-
-model Jadwal {
+model Class {
   id         Int        @id @default(autoincrement())
-  hari       JadwalHari
-  kelas      Kelas      @relation(fields: [kelas_id], references: [id])
-  kelas_id   Int
-  matpel     Matpel     @relation(fields: [matpel_id], references: [id])
-  matpel_id  Int
+  name       String
+  teacher    Teacher?   @relation(fields: [teacher_id], references: [id])
+  teacher_id Int?       @unique
   created_at DateTime   @default(now())
   updated_at DateTime   @default(now())
-
-  @@unique([kelas_id, matpel_id])
+  course     Course[]
+  schedules  Schedule[]
+  students   Student[]
 }
 
-model Siswa {
-  id          Int      @id @default(autoincrement())
-  nomor_induk String   @unique
-  kelas       Kelas    @relation(fields: [kelas_id], references: [id])
-  kelas_id    Int
-  user        User     @relation(fields: [user_id], references: [id])
-  user_id     Int      @unique
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now())
+model Course {
+  id             Int             @id @default(autoincrement())
+  subject_number String          @unique
+  name           String
+  curriculum     String
+  school_class   Class           @relation(fields: [class_id], references: [id])
+  class_id       Int
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @default(now())
+  schedule       Schedule[]
+  teachers       TeacherCourse[]
 }
 
-model Absen {
+model TeacherCourse {
+  id         Int      @id @default(autoincrement())
+  summary    String?
+  course     Course   @relation(fields: [course_id], references: [id])
+  course_id  Int
+  teacher    Teacher  @relation(fields: [teacher_id], references: [id])
+  teacher_id Int
+  created_at DateTime @default(now())
+
+  @@unique([course_id, teacher_id])
+}
+
+model Schedule {
+  id           Int         @id @default(autoincrement())
+  day          ScheduleDay
+  school_class Class       @relation(fields: [class_id], references: [id])
+  class_id     Int
+  course       Course      @relation(fields: [course_id], references: [id])
+  course_id    Int
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @default(now())
+
+  @@unique([class_id, course_id])
+}
+
+model Student {
+  id           Int      @id @default(autoincrement())
+  id_number    String   @unique
+  school_class Class    @relation(fields: [class_id], references: [id])
+  class_id     Int
+  user         User     @relation(fields: [user_id], references: [id])
+  user_id      Int      @unique
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+}
+
+model Absent {
   id         Int      @id @default(autoincrement())
   latitude   Decimal  @db.Decimal(16, 16)
   longitude  Decimal  @db.Decimal(16, 16)
+  category   AbsentCategory
   user       User     @relation(fields: [user_id], references: [id])
   user_id    Int
   created_at DateTime @default(now())

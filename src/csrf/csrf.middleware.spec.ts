@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { csrfModuleConfig } from '../modules/csrf.module';
 import { CsrfMiddleware } from './csrf.middleware';
+import { csrfModuleConfig } from './csrf.module';
 
 describe('CsrfMiddleware', () => {
   let middleware: CsrfMiddleware;
@@ -9,7 +9,7 @@ describe('CsrfMiddleware', () => {
     const module: TestingModule =
       await Test.createTestingModule(csrfModuleConfig).compile();
 
-    middleware = await module.resolve(CsrfMiddleware);
+    middleware = module.get<CsrfMiddleware>(CsrfMiddleware);
   });
 
   it('should be defined', () => {

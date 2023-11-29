@@ -5,8 +5,9 @@ import {
   ModuleMetadata,
   RequestMethod,
 } from '@nestjs/common';
-import { CsrfMiddleware } from '../middleware/csrf.middleware';
-import { CsrfService } from '../services/csrf.service';
+import { CsrfController } from './csrf.controller';
+import { CsrfService } from './csrf.service';
+import { CsrfMiddleware } from './csrf.middleware';
 
 export const csrfModuleConfig: ModuleMetadata = {
   imports: [
@@ -14,15 +15,15 @@ export const csrfModuleConfig: ModuleMetadata = {
       ttl: 1000 * 60 * 5,
     }),
   ],
+  controllers: [CsrfController],
   providers: [CsrfService, CsrfMiddleware],
   exports: [CsrfService],
 };
 @Module(csrfModuleConfig)
 export class CsrfModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CsrfMiddleware).forRoutes({
-      path: 'login',
-      method: RequestMethod.POST,
-    });
+    consumer
+      .apply(CsrfMiddleware)
+      .forRoutes({ path: 'auth/login', method: RequestMethod.POST });
   }
 }
