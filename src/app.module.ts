@@ -6,10 +6,12 @@ import { AuthModule } from './auth/auth.module';
 import { ClassModule } from './class/class.module';
 import { CourseModule } from './course/course.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { SchoolModule } from './school/school.module';
 import { StudentModule } from './student/student.module';
 import { TeacherModule } from './teacher/teacher.module';
+import { CsrfModule } from './csrf/csrf.module';
 
-export const appModuleConfig: ModuleMetadata = {
+export const appModuleMeta: ModuleMetadata = {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -23,12 +25,14 @@ export const appModuleConfig: ModuleMetadata = {
     ]),
     AbsentModule,
     AuthModule,
+    CsrfModule,
     ClassModule,
     CourseModule,
     ScheduleModule,
+    SchoolModule,
     StudentModule,
     TeacherModule,
   ],
 };
-@Module(appModuleConfig)
+@Module(appModuleMeta)
 export class AppModule {}

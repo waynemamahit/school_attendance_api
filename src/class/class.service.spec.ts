@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { classModuleConfig } from './class.module';
+import { classModuleMeta } from './class.module';
 import { ClassService } from './class.service';
 
 describe('ClassService', () => {
@@ -7,7 +7,7 @@ describe('ClassService', () => {
 
   beforeEach(async () => {
     const module: TestingModule =
-      await Test.createTestingModule(classModuleConfig).compile();
+      await Test.createTestingModule(classModuleMeta).compile();
 
     service = module.get<ClassService>(ClassService);
   });

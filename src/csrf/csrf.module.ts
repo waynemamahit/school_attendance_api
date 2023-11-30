@@ -9,7 +9,7 @@ import { CsrfController } from './csrf.controller';
 import { CsrfService } from './csrf.service';
 import { CsrfMiddleware } from './csrf.middleware';
 
-export const csrfModuleConfig: ModuleMetadata = {
+export const csrfModuleMeta: ModuleMetadata = {
   imports: [
     CacheModule.register({
       ttl: 1000 * 60 * 5,
@@ -19,7 +19,7 @@ export const csrfModuleConfig: ModuleMetadata = {
   providers: [CsrfService, CsrfMiddleware],
   exports: [CsrfService],
 };
-@Module(csrfModuleConfig)
+@Module(csrfModuleMeta)
 export class CsrfModule {
   configure(consumer: MiddlewareConsumer) {
     consumer

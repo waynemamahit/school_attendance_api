@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CsrfController } from './csrf.controller';
-import { csrfModuleConfig } from './csrf.module';
+import { csrfModuleMeta } from './csrf.module';
 
 describe('CsrfController', () => {
   let controller: CsrfController;
 
   beforeEach(async () => {
     const module: TestingModule =
-      await Test.createTestingModule(csrfModuleConfig).compile();
+      await Test.createTestingModule(csrfModuleMeta).compile();
 
     controller = module.get<CsrfController>(CsrfController);
   });

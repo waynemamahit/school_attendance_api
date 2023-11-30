@@ -2,9 +2,9 @@ import { Module, ModuleMetadata } from '@nestjs/common';
 import { ClassController } from './class.controller';
 import { ClassService } from './class.service';
 
-export const classModuleConfig: ModuleMetadata = {
+export const classModuleMeta: ModuleMetadata = {
   controllers: [ClassController],
   providers: [ClassService],
 };
-@Module(classModuleConfig)
+@Module(classModuleMeta)
 export class ClassModule {}

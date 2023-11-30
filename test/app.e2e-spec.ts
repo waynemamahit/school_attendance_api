@@ -5,7 +5,7 @@ import {
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { initPlugin } from '../src/init';
-import { appModuleConfig } from './../src/app.module';
+import { appModuleMeta } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -14,7 +14,7 @@ describe('AppController (e2e)', () => {
 
   beforeAll(async () => {
     app = (
-      await Test.createTestingModule(appModuleConfig).compile()
+      await Test.createTestingModule(appModuleMeta).compile()
     ).createNestApplication<NestFastifyApplication>(new FastifyAdapter());
     await initPlugin(app);
     await app.init();

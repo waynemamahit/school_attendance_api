@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CourseController } from './course.controller';
-import { courseConfigModule } from './course.module';
+import { courseModuleMeta } from './course.module';
 
 describe('CourseController', () => {
   let controller: CourseController;
 
   beforeEach(async () => {
     const module: TestingModule =
-      await Test.createTestingModule(courseConfigModule).compile();
+      await Test.createTestingModule(courseModuleMeta).compile();
 
     controller = module.get<CourseController>(CourseController);
   });
