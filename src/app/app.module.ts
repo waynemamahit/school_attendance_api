@@ -10,6 +10,7 @@ import { SchoolModule } from './school/school.module';
 import { StudentModule } from './student/student.module';
 import { TeacherModule } from './teacher/teacher.module';
 import { CsrfModule } from './csrf/csrf.module';
+import { AppService } from './app.service';
 
 export const appModuleMeta: ModuleMetadata = {
   imports: [
@@ -33,6 +34,7 @@ export const appModuleMeta: ModuleMetadata = {
     StudentModule,
     TeacherModule,
   ],
+  providers: [AppService],
 };
 @Module(appModuleMeta)
 export class AppModule {}

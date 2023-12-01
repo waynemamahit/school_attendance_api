@@ -5,7 +5,7 @@ import {
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { initPlugin } from '../src/init';
-import { appModuleMeta } from './../src/app.module';
+import { appModuleMeta } from '../src/app/app.module';
 
 describe('AppController (e2e)', () => {
   let app: NestFastifyApplication;

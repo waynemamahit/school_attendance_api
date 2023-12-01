@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { compareSync } from 'bcrypt';
-import { PrismaService } from '../shared/services/prisma.service';
+import { PrismaService } from '../../shared/services/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +22,9 @@ export class AuthService {
       },
     });
 
-    return compareSync(password, user.password);
+    if (!compareSync(password, user.password))
+      throw new UnauthorizedException('Invalid credentials!');
+
+    return user;
   }
 }
