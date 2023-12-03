@@ -1,8 +1,4 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class AppService implements OnApplicationBootstrap {
-  onApplicationBootstrap() {
-    console.log('Hello World!');
-  }
-}
+export class AppService {}

@@ -1,30 +1,68 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { compareSync } from 'bcrypt';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
+import { randomBytes } from 'crypto';
+import { FastifyReply } from 'fastify';
+import { CreateUser } from '../../interfaces/user.interfaces';
 import { PrismaService } from '../../shared/services/prisma.service';
 
 @Injectable()
-export class AuthService {
-  constructor(private prisma: PrismaService) {}
+export class AuthService implements OnModuleInit {
+  constructor(
+    private jwt: JwtService,
+    private prisma: PrismaService,
+  ) {}
 
-  async login(username: string, password: string) {
-    const user = await this.prisma.user.findFirst({
+  async onModuleInit() {
+    if ((await this.prisma.role.count()) === 0) {
+      await this.prisma.role.createMany({
+        data: ['system', 'admin', 'teacher', 'student'].map((name) => ({
+          name,
+        })),
+      });
+      console.log('User roles has been created!');
+    }
+  }
+
+  async getRole(name: string) {
+    return await this.prisma.role.findFirst({
       where: {
-        AND: [
+        name,
+      },
+    });
+  }
+
+  async getUser(email: string, username: string) {
+    return await this.prisma.user.findFirst({
+      where: {
+        OR: [
           {
-            email: {
-              contains: username,
-            },
+            email,
           },
           {
             username,
           },
         ],
       },
+      include: {
+        school: true,
+      },
     });
+  }
 
-    if (!compareSync(password, user.password))
-      throw new UnauthorizedException('Invalid credentials!');
+  async createUser(data: CreateUser) {
+    return await this.prisma.user.create({
+      data: { ...(data as User) },
+    });
+  }
 
-    return user;
+  async createToken(user: object, res: FastifyReply) {
+    const userKey = randomBytes(32).toString('hex');
+    const token = await this.jwt.signAsync(user, {
+      secret: userKey,
+    });
+    res.setCookie('userKey', userKey);
+
+    return token;
   }
 }

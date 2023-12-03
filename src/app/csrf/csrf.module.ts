@@ -24,6 +24,6 @@ export class CsrfModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(CsrfMiddleware)
-      .forRoutes({ path: 'auth/login', method: RequestMethod.POST });
+      .forRoutes({ path: 'auth/*', method: RequestMethod.ALL });
   }
 }

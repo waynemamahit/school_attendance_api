@@ -4,4 +4,5 @@ export interface CreateUser {
   email: string;
   password: string;
   role_id: number;
+  school_id: number;
 }

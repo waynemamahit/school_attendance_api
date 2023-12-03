@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { randomBytes } from 'crypto';
+import cookie from 'cookie';
 import { FastifyRequest } from 'fastify';
 
 @Injectable()
@@ -19,12 +19,11 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const secret = randomBytes(32).toString('hex');
+      const secret =
+        cookie.parse(request.headers.cookie ?? '')['userKey'] ?? '';
       request['auth'] = {
         secret,
-        user: await this.jwtService.verifyAsync(token, {
-          secret,
-        }),
+        user: await this.jwtService.verifyAsync(token, { secret }),
       };
     } catch {
       throw new UnauthorizedException();

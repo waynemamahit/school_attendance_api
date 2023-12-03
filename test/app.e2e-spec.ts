@@ -1,27 +1,55 @@
+import { faker } from '@faker-js/faker';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { initPlugin } from '../src/init';
 import { appModuleMeta } from '../src/app/app.module';
+import { AuthService } from '../src/app/auth/auth.service';
+import { initPlugin } from '../src/init';
 
-describe('AppController (e2e)', () => {
+describe('Authentication and Authorization', () => {
   let app: NestFastifyApplication;
   let token = '';
   let csrf_key = '';
+  const loginPayload = {
+    email: faker.internet.email().toLowerCase(),
+    password: 'password',
+  };
+  const registerPayload = {
+    user: {
+      name: faker.person.fullName(),
+      username: faker.person.firstName().toLowerCase(),
+      ...loginPayload,
+    },
+    school: {
+      name: faker.company.name(),
+      address: faker.location.streetAddress(),
+      latitude: 1.2231,
+      longitude: 2.12123,
+    },
+  };
 
   beforeAll(async () => {
     app = (
       await Test.createTestingModule(appModuleMeta).compile()
     ).createNestApplication<NestFastifyApplication>(new FastifyAdapter());
     await initPlugin(app);
+    await app.get<AuthService>(AuthService).onModuleInit();
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });
 
   afterAll(() => app.close());
+
+  it('should not register without csrf token and key', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/auth/register')
+      .send(registerPayload);
+
+    return expect(response.statusCode).toBe(400);
+  });
 
   it('should not login without csrf token and key', async () => {
     const response = await request(app.getHttpServer())
@@ -34,17 +62,7 @@ describe('AppController (e2e)', () => {
     return expect(response.statusCode).toBe(400);
   });
 
-  it('should not login without payload', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({})
-      .set('X-CSRF-TOKEN', token)
-      .set('Cookie', 'csrf_key=' + csrf_key);
-
-    return expect(response.statusCode).toBe(400);
-  });
-
-  it('/csrf (GET)', async () => {
+  it('should get token CSRF', async () => {
     const response = await request(app.getHttpServer()).get('/csrf');
     if (response.statusCode === 200) {
       token = response.text;
@@ -58,16 +76,43 @@ describe('AppController (e2e)', () => {
     return expect(response.status).toBe(200);
   });
 
-  it('/auth/login (POST)', async () => {
+  it('should not register without payload', async () => {
     const response = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: 'admin@mail.com',
-        password: '123456',
-      })
+      .put('/auth/register')
+      .send({})
+      .set('X-CSRF-TOKEN', token)
+      .set('Cookie', 'csrf_key=' + csrf_key);
+
+    return expect(response.statusCode).toBe(400);
+  });
+
+  it('should register', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/auth/register')
+      .send(registerPayload)
       .set('X-CSRF-TOKEN', token)
       .set('Cookie', 'csrf_key=' + csrf_key);
 
     return expect(response.statusCode).toBe(201);
+  });
+
+  it('should not login without payload', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({})
+      .set('X-CSRF-TOKEN', token)
+      .set('Cookie', 'csrf_key=' + csrf_key);
+
+    return expect(response.statusCode).toBe(400);
+  });
+
+  it('should login', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginPayload)
+      .set('X-CSRF-TOKEN', token)
+      .set('Cookie', 'csrf_key=' + csrf_key);
+
+    return expect(response.statusCode).toBe(200);
   });
 });

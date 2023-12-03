@@ -14,6 +14,7 @@ async function bootstrap() {
     }),
   );
   await initPlugin(app);
+
   app.setGlobalPrefix('v1');
   await app.listen(3000);
 }

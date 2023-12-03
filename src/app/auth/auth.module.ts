@@ -1,8 +1,10 @@
 import { Module, ModuleMetadata } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { MailService } from '../../shared/services/mail.service';
 import { PrismaService } from '../../shared/services/prisma.service';
+import { SchoolModule } from '../school/school.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtModule } from '@nestjs/jwt';
 
 export const authModuleMeta: ModuleMetadata = {
   imports: [
@@ -10,9 +12,10 @@ export const authModuleMeta: ModuleMetadata = {
       global: true,
       signOptions: { expiresIn: '30d' },
     }),
+    SchoolModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService],
+  providers: [AuthService, PrismaService, MailService],
   exports: [AuthService],
 };
 @Module(authModuleMeta)
