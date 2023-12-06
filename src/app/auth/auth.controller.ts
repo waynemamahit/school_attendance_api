@@ -9,7 +9,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import { compareSync } from 'bcrypt';
 import { FastifyReply } from 'fastify';
 import { ApiResponse } from '../../models/BaseResponse';
 import { ZodPipe } from '../../shared/pipes/zod.pipe';
@@ -59,16 +59,13 @@ export class AuthController {
     const checkUser = await this.service.getUser(user.email, user.username);
     if (checkUser) throw new BadRequestException('User has been exists!');
 
-    user.password = hashSync(user.password, genSaltSync(12));
     const newUser = await this.service.createUser({
       ...(user as User),
-      role_id: (await this.service.getRole('admin')).id,
+      role_id: 2,
       school_id: (await this.schoolService.createSchool(school as never)).id,
     });
-    delete newUser.password;
 
     const token = await this.service.createToken(newUser, res);
-    // send email
 
     return res.status(201).send(
       new ApiResponse({

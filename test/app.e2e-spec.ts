@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -8,28 +7,12 @@ import request from 'supertest';
 import { appModuleMeta } from '../src/app/app.module';
 import { AuthService } from '../src/app/auth/auth.service';
 import { initPlugin } from '../src/init';
+import { loginPayload, registerPayload } from './utils/auth.e2e';
 
 describe('Authentication and Authorization', () => {
   let app: NestFastifyApplication;
   let token = '';
   let csrf_key = '';
-  const loginPayload = {
-    email: faker.internet.email().toLowerCase(),
-    password: 'password',
-  };
-  const registerPayload = {
-    user: {
-      name: faker.person.fullName(),
-      username: faker.person.firstName().toLowerCase(),
-      ...loginPayload,
-    },
-    school: {
-      name: faker.company.name(),
-      address: faker.location.streetAddress(),
-      latitude: 1.2231,
-      longitude: 2.12123,
-    },
-  };
 
   beforeAll(async () => {
     app = (
@@ -48,7 +31,7 @@ describe('Authentication and Authorization', () => {
       .put('/auth/register')
       .send(registerPayload);
 
-    return expect(response.statusCode).toBe(400);
+    return expect(response.statusCode).toBe(419);
   });
 
   it('should not login without csrf token and key', async () => {
@@ -59,7 +42,7 @@ describe('Authentication and Authorization', () => {
         password: '123456',
       });
 
-    return expect(response.statusCode).toBe(400);
+    return expect(response.statusCode).toBe(419);
   });
 
   it('should get token CSRF', async () => {

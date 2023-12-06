@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NestMiddleware,
-} from '@nestjs/common';
+import { HttpException, Injectable, NestMiddleware } from '@nestjs/common';
 import cookie from 'cookie';
 import { CsrfService } from './csrf.service';
 
@@ -33,7 +29,7 @@ export class CsrfMiddleware implements NestMiddleware {
       },
     ]) {
       if (validator.rule) {
-        throw new BadRequestException(validator.message);
+        throw new HttpException(validator.message, 419);
       }
     }
     next();

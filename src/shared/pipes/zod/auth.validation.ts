@@ -2,12 +2,12 @@ import { z } from 'zod';
 
 const toUpper = (val: string) => val.toUpperCase();
 
-export const loginSchemaDto = z
-  .object({
-    email: z.string(),
-    password: z.string(),
-  })
-  .required();
+const userObject = z.object({
+  email: z.string(),
+  password: z.string(),
+});
+
+export const loginSchemaDto = userObject.required();
 
 export type LoginDto = z.infer<typeof loginSchemaDto>;
 
@@ -17,9 +17,8 @@ export const registerSchemaDto = z
       .object({
         name: z.string().transform(toUpper),
         username: z.string().optional(),
-        email: z.string(),
-        password: z.string(),
       })
+      .merge(userObject)
       .required(),
     school: z
       .object({
