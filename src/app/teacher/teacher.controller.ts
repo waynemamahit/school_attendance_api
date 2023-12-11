@@ -5,8 +5,8 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -16,6 +16,7 @@ import {
 import { User } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { AuthRequest } from '../../interfaces/auth.interface';
 import { GetTeacherQuery } from '../../interfaces/teacher.interface';
 import { ApiResponse } from '../../models/BaseResponse';
 import { ZodPipe } from '../../shared/pipes/zod.pipe';
@@ -25,19 +26,21 @@ import {
   createTeacherSchemaDto,
   updateTeacherSchemaDto,
 } from '../../shared/pipes/zod/teacher.validation';
+import { AuthRoleGuard } from '../auth/auth-role.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { TeacherService } from './teacher.service';
 
 @Controller('teacher')
 @UseGuards(AuthGuard)
+@UseGuards(AuthRoleGuard(1, 2))
 export class TeacherController {
   constructor(
     private service: TeacherService,
     private authService: AuthService,
   ) {}
 
-  @Get('')
+  @Get()
   async getTeacher(@Query() query: GetTeacherQuery, @Res() res: FastifyReply) {
     const data = await this.service.getTeachers(query);
 
@@ -49,10 +52,10 @@ export class TeacherController {
     );
   }
 
-  @Post('')
+  @Post()
   @UsePipes(new ZodPipe(createTeacherSchemaDto))
   async createTeacher(
-    @Req() req: FastifyRequest & { auth: { user: User } },
+    @Req() req: FastifyRequest & AuthRequest,
     @Body() dto: CreateTeacherDto,
     @Res() res: FastifyReply,
   ) {
@@ -94,7 +97,7 @@ export class TeacherController {
     );
   }
 
-  @Patch(':id')
+  @Put(':id')
   async updateTeacher(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodPipe(updateTeacherSchemaDto)) dto: UpdateTeacherDto,

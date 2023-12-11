@@ -65,7 +65,7 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  async createToken(user: object, res: FastifyReply) {
+  async createToken(user: User, res: FastifyReply) {
     const userKey = randomBytes(32).toString('hex');
     const token = await this.jwt.signAsync(user, {
       secret: userKey,

@@ -1,20 +1,25 @@
+import { faker } from '@faker-js/faker';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
-import { Teacher } from '@prisma/client';
+import { Class } from '@prisma/client';
 import request from 'supertest';
 import { appModuleMeta } from '../src/app/app.module';
 import { initPlugin } from '../src/init';
 import { loginPayload, registerPayload } from './utils/auth.e2e';
 import { teacherPayload } from './utils/teacher.e2e';
 
-describe('Teacher Features', () => {
+describe('Class Features', () => {
   let app: NestFastifyApplication;
   let token = '';
   let csrf_key = '';
-  let newTeacher: Teacher;
+  const classPayload = {
+    name: faker.location.city(),
+    teacher_id: 1,
+  };
+  let newItem: Class;
   let userKey = '';
   let userToken = 'Bearer ';
 
@@ -70,25 +75,14 @@ describe('Teacher Features', () => {
     return expect(response.statusCode).toBe(200);
   });
 
-  it('should get all teacher', async () => {
+  it('should get all class', async () => {
     const response = await request(app.getHttpServer())
-      .get('/teacher')
+      .get('/class')
       .set('X-CSRF-TOKEN', token)
       .set('Cookie', csrf_key + ';' + userKey + ';')
       .set('Authorization', userToken);
 
     return expect(response.statusCode).toBe(200);
-  });
-
-  it('should not create new teacher without payload', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/teacher')
-      .send({})
-      .set('X-CSRF-TOKEN', token)
-      .set('Cookie', csrf_key + ';' + userKey + ';')
-      .set('Authorization', userToken);
-
-    return expect(response.statusCode).toBe(400);
   });
 
   it('should create new teacher', async () => {
@@ -101,25 +95,15 @@ describe('Teacher Features', () => {
 
     const isSuccess = response.statusCode === 201;
     if (isSuccess) {
-      newTeacher = response.body.data;
+      classPayload.teacher_id = response.body.data.id;
     }
 
     return expect(isSuccess).toBe(true);
   });
 
-  it('should get teacher', async () => {
+  it('should not create new class without payload', async () => {
     const response = await request(app.getHttpServer())
-      .get('/teacher/' + newTeacher.id)
-      .set('X-CSRF-TOKEN', token)
-      .set('Cookie', csrf_key + ';' + userKey + ';')
-      .set('Authorization', userToken);
-
-    return expect(response.statusCode).toBe(200);
-  });
-
-  it('should not update teacher without payload', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/teacher/' + newTeacher.id)
+      .post('/class')
       .send({})
       .set('X-CSRF-TOKEN', token)
       .set('Cookie', csrf_key + ';' + userKey + ';')
@@ -128,10 +112,47 @@ describe('Teacher Features', () => {
     return expect(response.statusCode).toBe(400);
   });
 
-  it('should update teacher', async () => {
+  it('should create new class', async () => {
     const response = await request(app.getHttpServer())
-      .put('/teacher/' + newTeacher.id)
-      .send(teacherPayload)
+      .post('/class')
+      .send(classPayload)
+      .set('X-CSRF-TOKEN', token)
+      .set('Cookie', csrf_key + ';' + userKey + ';')
+      .set('Authorization', userToken);
+
+    const isSuccess = response.statusCode === 201;
+    if (isSuccess) {
+      newItem = response.body.data;
+    }
+
+    return expect(isSuccess).toBe(true);
+  });
+
+  it('should get class', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/class/' + newItem.id)
+      .set('X-CSRF-TOKEN', token)
+      .set('Cookie', csrf_key + ';' + userKey + ';')
+      .set('Authorization', userToken);
+
+    return expect(response.statusCode).toBe(200);
+  });
+
+  it('should not update class without payload', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/class/' + newItem.id)
+      .send({})
+      .set('X-CSRF-TOKEN', token)
+      .set('Cookie', csrf_key + ';' + userKey + ';')
+      .set('Authorization', userToken);
+
+    return expect(response.statusCode).toBe(400);
+  });
+
+  it('should update class', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/class/' + newItem.id)
+      .send(classPayload)
       .set('X-CSRF-TOKEN', token)
       .set('Cookie', csrf_key + ';' + userKey + ';')
       .set('Authorization', userToken);
@@ -139,9 +160,9 @@ describe('Teacher Features', () => {
     return expect(response.statusCode).toBe(201);
   });
 
-  it('should delete teacher', async () => {
+  it('should delete class', async () => {
     const response = await request(app.getHttpServer())
-      .delete('/teacher/' + newTeacher.id)
+      .delete('/class/' + newItem.id)
       .set('X-CSRF-TOKEN', token)
       .set('Cookie', csrf_key + ';' + userKey + ';')
       .set('Authorization', userToken);

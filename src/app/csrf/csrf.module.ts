@@ -6,8 +6,8 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { CsrfController } from './csrf.controller';
-import { CsrfService } from './csrf.service';
 import { CsrfMiddleware } from './csrf.middleware';
+import { CsrfService } from './csrf.service';
 
 export const csrfModuleMeta: ModuleMetadata = {
   imports: [
@@ -25,8 +25,9 @@ export class CsrfModule {
     consumer
       .apply(CsrfMiddleware)
       .forRoutes(
-        { path: 'teacher/*', method: RequestMethod.ALL },
         { path: 'auth/*', method: RequestMethod.ALL },
+        { path: 'teacher/*', method: RequestMethod.ALL },
+        { path: 'class/*', method: RequestMethod.ALL },
       );
   }
 }
