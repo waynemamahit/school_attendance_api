@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  OnModuleInit,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { genSaltSync, hashSync } from 'bcrypt';
@@ -21,7 +26,48 @@ export class AuthService implements OnModuleInit {
           name,
         })),
       });
-      console.log('User roles has been created!');
+      console.log('user roles has been created!');
+    }
+
+    if ((await this.prisma.ability.count()) === 0) {
+      for (const feature of [
+        'absent',
+        'class',
+        'course',
+        'schedule',
+        'school',
+        'student',
+        'teacher',
+      ]) {
+        await this.prisma.ability.createMany({
+          data: ['get', 'show', 'create', 'update', 'delete'].map((action) => ({
+            name: feature,
+            action,
+          })),
+        });
+      }
+      console.log('user abilities has been created!');
+    }
+
+    if (
+      (
+        await this.prisma.user.findMany({
+          where: {
+            role_id: 1,
+          },
+        })
+      ).length === 0
+    ) {
+      await this.prisma.user.create({
+        data: {
+          name: 'Super Administrator',
+          email: 'suadmin@mail.com',
+          username: 'suadmin',
+          password: hashSync('password12345', genSaltSync(12)),
+          role_id: 1,
+        },
+      });
+      console.log('Super Admin has been created!');
     }
   }
 
@@ -73,6 +119,11 @@ export class AuthService implements OnModuleInit {
     res.setCookie('userKey', userKey);
 
     return token;
+  }
+
+  async getUserToken(token: string, secret: string) {
+    if (typeof token === 'undefined') throw new UnauthorizedException();
+    return await this.jwt.verifyAsync(token, { secret });
   }
 
   async updateUser(id: number, data: User) {

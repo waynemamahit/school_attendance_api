@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker';
 
 export const loginPayload = {
-  email: faker.internet.email().toLowerCase(),
+  email: faker.internet.email().toString().toLowerCase(),
   password: 'password',
 };
 
 export const registerPayload = {
   user: {
     name: faker.person.fullName(),
-    username: faker.person.firstName().toLowerCase(),
+    username: faker.person.firstName().toString().toLowerCase(),
     ...loginPayload,
   },
   school: {

@@ -35,14 +35,23 @@ model Role {
   abilities  RoleAbility[]
 }
 
+model Ability {
+  id     Int           @id @default(autoincrement())
+  name   String
+  action String
+  roles  RoleAbility[]
+}
+
 model RoleAbility {
   id         Int      @id @default(autoincrement())
-  name       String
-  action     String
+  ability    Ability  @relation(fields: [ability_id], references: [id], onDelete: Cascade)
+  ability_id Int
   role       Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
   role_id    Int
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+
+  @@unique([ability_id, role_id])
 }
 
 model School {
@@ -63,8 +72,8 @@ model User {
   password   String
   role       Role?    @relation(fields: [role_id], references: [id], onDelete: SetNull)
   role_id    Int?
-  school     School   @relation(fields: [school_id], references: [id], onDelete: Cascade)
-  school_id  Int
+  school     School?  @relation(fields: [school_id], references: [id], onDelete: Cascade)
+  school_id  Int?
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   teacher    Teacher?

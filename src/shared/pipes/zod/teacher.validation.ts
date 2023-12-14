@@ -6,6 +6,7 @@ export const createTeacherSchemaDto = z
     id_number: z.string(),
     email: z.string().email(),
     username: z.string(),
+    password: z.string().optional(),
   })
   .required();
 

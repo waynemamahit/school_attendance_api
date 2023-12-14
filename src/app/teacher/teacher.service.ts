@@ -15,20 +15,29 @@ export class TeacherService {
   constructor(private prisma: PrismaService) {}
 
   async getTeachers(query: GetTeacherQuery) {
-    return await this.prisma.teacher.findMany({
-      where: {
-        OR: Object.entries(query).map(([key, value]: [string, string]) => ({
-          [key]: value,
-        })),
-      },
+    const cond = Object.entries(query).map(
+      ([key, value]: [string, string]) => ({
+        [key]: value,
+      }),
+    );
+
+    return await this.prisma.class.findMany({
+      where:
+        cond.length > 0
+          ? {
+              OR: cond,
+            }
+          : {},
     });
   }
 
   async createTeacher(data: CreateTeacher) {
     try {
-      return await this.prisma.teacher.create({
+      const result = await this.prisma.teacher.create({
         data,
       });
+
+      return result;
     } catch {
       throw new BadRequestException('ID Number or User has been exists!');
     }
@@ -39,7 +48,12 @@ export class TeacherService {
       where: {
         OR: [{ id }, { id_number: id.toString() }],
       },
+      include: {
+        user: true,
+      },
     });
+    delete data.user.password;
+
     if (!data)
       throw new HttpException('Teacher not found!', HttpStatus.NOT_FOUND);
 

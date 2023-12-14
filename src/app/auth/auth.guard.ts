@@ -2,32 +2,40 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
+  mixin,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import cookie from 'cookie';
 import { FastifyRequest } from 'fastify';
+import { AuthRequest } from '../../interfaces/auth.interface';
+import { AuthService } from './auth.service';
 
-@Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+export const AuthGuard = (isMaster: boolean = false) => {
+  @Injectable()
+  class AuthGuardMixin implements CanActivate {
+    constructor(public auth: AuthService) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: FastifyRequest = context.switchToHttp().getRequest();
-    const token = request.headers.authorization?.split(' ')[1];
-    if (typeof token === 'undefined') {
-      throw new UnauthorizedException();
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+      const request: FastifyRequest & AuthRequest = context
+        .switchToHttp()
+        .getRequest();
+
+      try {
+        const secret =
+          cookie.parse(request.headers.cookie ?? '')['userKey'] ?? '';
+        request['auth'] = {
+          secret,
+          user: await this.auth.getUserToken(
+            request.headers.authorization?.split(' ')[1],
+            secret,
+          ),
+        };
+
+        return !(isMaster && request.auth.user.role_id !== 1);
+      } catch {
+        return false;
+      }
     }
-    try {
-      const secret =
-        cookie.parse(request.headers.cookie ?? '')['userKey'] ?? '';
-      request['auth'] = {
-        secret,
-        user: await this.jwtService.verifyAsync(token, { secret }),
-      };
-    } catch {
-      throw new UnauthorizedException();
-    }
-    return true;
   }
-}
+
+  return mixin(AuthGuardMixin);
+};

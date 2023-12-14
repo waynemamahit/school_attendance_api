@@ -16,12 +16,19 @@ export class ClassService {
   constructor(private prisma: PrismaService) {}
 
   async getClasses(query: GetClassQuery) {
+    const cond = Object.entries(query).map(
+      ([key, value]: [string, string]) => ({
+        [key]: value,
+      }),
+    );
+
     return await this.prisma.class.findMany({
-      where: {
-        OR: Object.entries(query).map(([key, value]: [string, string]) => ({
-          [key]: value,
-        })),
-      },
+      where:
+        cond.length > 0
+          ? {
+              OR: cond,
+            }
+          : {},
     });
   }
 

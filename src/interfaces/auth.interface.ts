@@ -1,3 +1,8 @@
 import { User } from '@prisma/client';
 
-export type AuthRequest = { auth: { user: User } };
+export type AuthRequest = {
+  auth: {
+    user: User;
+    secret: string;
+  };
+};

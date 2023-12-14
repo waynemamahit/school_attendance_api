@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  OnModuleInit,
   Param,
   ParseIntPipe,
   Post,
@@ -26,21 +27,27 @@ import {
   createTeacherSchemaDto,
   updateTeacherSchemaDto,
 } from '../../shared/pipes/zod/teacher.validation';
-import { AuthRoleGuard } from '../auth/auth-role.guard';
+import { AbilityGuard } from '../ability/ability.guard';
+import { AbilityService } from '../ability/ability.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { TeacherService } from './teacher.service';
 
 @Controller('teacher')
-@UseGuards(AuthGuard)
-@UseGuards(AuthRoleGuard(1, 2))
-export class TeacherController {
+@UseGuards(AuthGuard())
+export class TeacherController implements OnModuleInit {
   constructor(
     private service: TeacherService,
     private authService: AuthService,
+    private ability: AbilityService,
   ) {}
 
+  async onModuleInit() {
+    await this.ability.init('teacher', [2]);
+  }
+
   @Get()
+  @UseGuards(AbilityGuard('teacher', 'get'))
   async getTeacher(@Query() query: GetTeacherQuery, @Res() res: FastifyReply) {
     const data = await this.service.getTeachers(query);
 
@@ -53,13 +60,14 @@ export class TeacherController {
   }
 
   @Post()
+  @UseGuards(AbilityGuard('teacher', 'create'))
   @UsePipes(new ZodPipe(createTeacherSchemaDto))
   async createTeacher(
     @Req() req: FastifyRequest & AuthRequest,
     @Body() dto: CreateTeacherDto,
     @Res() res: FastifyReply,
   ) {
-    const password = randomBytes(8).toString('hex');
+    const password = dto?.password ?? randomBytes(8).toString('hex');
     const newUser = await this.authService.createUser({
       name: dto.name,
       email: dto.email,
@@ -85,6 +93,7 @@ export class TeacherController {
   }
 
   @Get(':id')
+  @UseGuards(AbilityGuard('teacher', 'show'))
   async showTeacher(
     @Param('id', ParseIntPipe) id: number,
     @Res() res: FastifyReply,
@@ -98,6 +107,7 @@ export class TeacherController {
   }
 
   @Put(':id')
+  @UseGuards(AbilityGuard('teacher', 'update'))
   async updateTeacher(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodPipe(updateTeacherSchemaDto)) dto: UpdateTeacherDto,
@@ -125,6 +135,7 @@ export class TeacherController {
   }
 
   @Delete(':id')
+  @UseGuards(AbilityGuard('teacher', 'delete'))
   async deleteTeacher(
     @Param('id', ParseIntPipe) id: number,
     @Res() res: FastifyReply,

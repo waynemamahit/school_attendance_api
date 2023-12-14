@@ -6,4 +6,5 @@ export const teacherPayload = {
   id_number: randomBytes(12).toString('hex'),
   email: faker.internet.email(),
   username: faker.person.firstName(),
+  password: 'password',
 };

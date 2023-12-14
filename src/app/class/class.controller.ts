@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  OnModuleInit,
   Param,
   ParseIntPipe,
   Post,
@@ -23,21 +24,27 @@ import {
   ClassDto,
   classSchemaDto,
 } from '../../shared/pipes/zod/class.validation';
-import { AuthRoleGuard } from '../auth/auth-role.guard';
+import { AbilityGuard } from '../ability/ability.guard';
+import { AbilityService } from '../ability/ability.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { TeacherService } from '../teacher/teacher.service';
 import { ClassService } from './class.service';
 
 @Controller('class')
-@UseGuards(AuthGuard)
-@UseGuards(AuthRoleGuard(1, 2))
-export class ClassController {
+@UseGuards(AuthGuard())
+export class ClassController implements OnModuleInit {
   constructor(
     private service: ClassService,
     private teacherService: TeacherService,
+    private ability: AbilityService,
   ) {}
 
+  async onModuleInit() {
+    await this.ability.init('class', [2]);
+  }
+
   @Get()
+  @UseGuards(AbilityGuard('class', 'get'))
   async getClasses(@Query() query: GetClassQuery, @Res() res: FastifyReply) {
     return res.status(200).send(
       new ApiResponse({
@@ -47,6 +54,7 @@ export class ClassController {
   }
 
   @Post()
+  @UseGuards(AbilityGuard('class', 'create'))
   @UsePipes(new ZodPipe(classSchemaDto))
   async createClass(
     @Body() dto: ClassDto,
@@ -69,6 +77,7 @@ export class ClassController {
   }
 
   @Get(':id')
+  @UseGuards(AbilityGuard('class', 'show'))
   async showClass(
     @Param('id', ParseIntPipe) id: number,
     @Req()
@@ -91,6 +100,7 @@ export class ClassController {
   }
 
   @Put(':id')
+  @UseGuards(AbilityGuard('class', 'update'))
   async updateClass(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodPipe(classSchemaDto)) dto: ClassDto,
@@ -109,6 +119,7 @@ export class ClassController {
   }
 
   @Delete(':id')
+  @UseGuards(AbilityGuard('class', 'delete'))
   async deleteClass(
     @Param('id', ParseIntPipe) id: number,
     @Req()
