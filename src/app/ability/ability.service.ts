@@ -32,12 +32,16 @@ export class AbilityService {
       })) === 0
     ) {
       for (const role_id of role_ids) {
-        await this.prisma.roleAbility.createMany({
-          data: ability_ids.map((ability_id) => ({
-            ability_id,
-            role_id,
-          })),
-        });
+        try {
+          await this.prisma.roleAbility.createMany({
+            data: ability_ids.map((ability_id) => ({
+              ability_id,
+              role_id,
+            })),
+          });
+        } catch {
+          continue;
+        }
       }
       console.log(name + ' feature ability has been created!');
     }

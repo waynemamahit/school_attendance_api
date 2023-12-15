@@ -50,24 +50,26 @@ export class AuthService implements OnModuleInit {
     }
 
     if (
-      (
-        await this.prisma.user.findMany({
-          where: {
-            role_id: 1,
-          },
-        })
-      ).length === 0
-    ) {
-      await this.prisma.user.create({
-        data: {
-          name: 'Super Administrator',
-          email: 'suadmin@mail.com',
-          username: 'suadmin',
-          password: hashSync('password12345', genSaltSync(12)),
+      !(await this.prisma.user.findFirst({
+        where: {
           role_id: 1,
         },
-      });
-      console.log('Super Admin has been created!');
+      }))
+    ) {
+      try {
+        await this.prisma.user.create({
+          data: {
+            name: 'Super Administrator',
+            email: 'suadmin@mail.com',
+            username: 'suadmin',
+            password: hashSync('password12345', genSaltSync(12)),
+            role_id: 1,
+          },
+        });
+        console.log('Super Admin has been created!');
+      } catch (error) {
+        console.log('Super Admin has been exists!');
+      }
     }
   }
 

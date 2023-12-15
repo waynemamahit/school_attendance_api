@@ -1,4 +1,4 @@
-import { Module, ModuleMetadata } from '@nestjs/common';
+import { Module, ModuleMetadata, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MailService } from '../../shared/services/mail.service';
 import { PrismaService } from '../../shared/services/prisma.service';
@@ -12,7 +12,7 @@ export const authModuleMeta: ModuleMetadata = {
       global: true,
       signOptions: { expiresIn: '30d' },
     }),
-    SchoolModule,
+    forwardRef(() => SchoolModule),
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaService, MailService],
