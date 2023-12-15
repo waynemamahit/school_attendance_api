@@ -5,7 +5,6 @@ import {
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { appModuleMeta } from '../src/app/app.module';
-import { AuthService } from '../src/app/auth/auth.service';
 import { initPlugin } from '../src/init';
 import { loginPayload, registerPayload } from './utils/auth.e2e';
 
@@ -19,7 +18,6 @@ describe('Authentication and Authorization', () => {
       await Test.createTestingModule(appModuleMeta).compile()
     ).createNestApplication<NestFastifyApplication>(new FastifyAdapter());
     await initPlugin(app);
-    await app.get<AuthService>(AuthService).onModuleInit();
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
   });

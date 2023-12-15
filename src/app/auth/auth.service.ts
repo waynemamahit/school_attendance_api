@@ -21,12 +21,16 @@ export class AuthService implements OnModuleInit {
 
   async onModuleInit() {
     if ((await this.prisma.role.count()) === 0) {
-      await this.prisma.role.createMany({
-        data: ['system', 'admin', 'teacher', 'student'].map((name) => ({
-          name,
-        })),
-      });
-      console.log('user roles has been created!');
+      try {
+        await this.prisma.role.createMany({
+          data: ['system', 'admin', 'teacher', 'student'].map((name) => ({
+            name,
+          })),
+        });
+        console.log('user roles has been created!');
+      } catch {
+        console.log('user role has name has been exists!');
+      }
     }
 
     if ((await this.prisma.ability.count()) === 0) {
@@ -39,12 +43,19 @@ export class AuthService implements OnModuleInit {
         'student',
         'teacher',
       ]) {
-        await this.prisma.ability.createMany({
-          data: ['get', 'show', 'create', 'update', 'delete'].map((action) => ({
-            name: feature,
-            action,
-          })),
-        });
+        try {
+          await this.prisma.ability.createMany({
+            data: ['get', 'show', 'create', 'update', 'delete'].map(
+              (action) => ({
+                name: feature,
+                action,
+              }),
+            ),
+          });
+        } catch {
+          console.log('ability has been exists!');
+          continue;
+        }
       }
       console.log('user abilities has been created!');
     }

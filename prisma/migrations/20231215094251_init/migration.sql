@@ -5,6 +5,7 @@ CREATE TABLE `Role` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
+    UNIQUE INDEX `Role_name_key`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -14,6 +15,7 @@ CREATE TABLE `Ability` (
     `name` VARCHAR(191) NOT NULL,
     `action` VARCHAR(191) NOT NULL,
 
+    UNIQUE INDEX `Ability_name_action_key`(`name`, `action`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
