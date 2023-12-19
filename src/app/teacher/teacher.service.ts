@@ -14,20 +14,32 @@ import { PrismaService } from '../../shared/services/prisma.service';
 export class TeacherService {
   constructor(private prisma: PrismaService) {}
 
-  async getTeachers(query: GetTeacherQuery) {
-    const cond = Object.entries(query).map(
-      ([key, value]: [string, string]) => ({
-        [key]: value,
-      }),
-    );
+  async getTeachers(school_id: number, query: GetTeacherQuery) {
+    let where = {};
+    if (Object.keys(query).length > 0) {
+      const { id_number, name, email, username } = query;
+      where = {
+        OR: [
+          { id_number },
+          {
+            user: { name },
+          },
+          {
+            user: { email },
+          },
+          {
+            user: { username },
+          },
+          {
+            user: { username },
+          },
+        ],
+        school_id,
+      };
+    }
 
-    return await this.prisma.class.findMany({
-      where:
-        cond.length > 0
-          ? {
-              OR: cond,
-            }
-          : {},
+    return await this.prisma.teacher.findMany({
+      where,
     });
   }
 
@@ -43,10 +55,13 @@ export class TeacherService {
     }
   }
 
-  async showTeacher(id: number) {
+  async showTeacher(school_id: number, id: number) {
     const data = await this.prisma.teacher.findFirst({
       where: {
         OR: [{ id }, { id_number: id.toString() }],
+        user: {
+          school_id,
+        },
       },
       include: {
         user: true,

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import {
   CreateSchool,
   GetSchoolQuery,
@@ -25,6 +30,16 @@ export class SchoolService {
             }
           : {},
     });
+  }
+
+  async showSchool(id: number) {
+    try {
+      return await this.prisma.school.findFirst({
+        where: { id },
+      });
+    } catch {
+      throw new HttpException('School not found!', HttpStatus.NOT_FOUND);
+    }
   }
 
   async createSchool(data: CreateSchool) {

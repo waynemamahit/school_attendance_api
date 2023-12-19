@@ -8,7 +8,7 @@ import { CreateAbilityDto } from 'src/shared/pipes/zod/ability.validation';
 import request from 'supertest';
 import { appModuleMeta } from '../src/app/app.module';
 import { initPlugin } from '../src/init';
-import { loginPayload, registerPayload } from './utils/auth.e2e';
+import { loginPayload, registerPayload } from './mocks/auth.e2e-mock';
 
 describe('Ability Features', () => {
   let app: NestFastifyApplication;
@@ -35,8 +35,9 @@ describe('Ability Features', () => {
     if (response.statusCode === 200) {
       token = response.text;
       csrf_key =
-        response.headers['set-cookie']
-          ?.find((cookieStr: string) => cookieStr.includes('csrf_key'))
+        response
+          .get('Set-Cookie')
+          .find((cookieStr: string) => cookieStr.includes('csrf_key'))
           ?.split(';')[0] ?? '';
     }
 
@@ -55,8 +56,9 @@ describe('Ability Features', () => {
 
     if (response.statusCode === 200) {
       userKey =
-        response.headers['set-cookie']
-          ?.find((cookieStr: string) => cookieStr.includes('userKey'))
+        response
+          .get('Set-Cookie')
+          .find((cookieStr: string) => cookieStr.includes('userKey'))
           ?.split(';')[0] ?? '';
       userToken += response.body.data.token;
     }
@@ -166,8 +168,9 @@ describe('Ability Features', () => {
 
     if (response.statusCode === 200) {
       userKey =
-        response.headers['set-cookie']
-          ?.find((cookieStr: string) => cookieStr.includes('userKey'))
+        response
+          .get('Set-Cookie')
+          .find((cookieStr: string) => cookieStr.includes('userKey'))
           ?.split(';')[0] ?? '';
       userToken += response.body.data.token;
     }

@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -8,17 +7,14 @@ import { Class } from '@prisma/client';
 import request from 'supertest';
 import { appModuleMeta } from '../src/app/app.module';
 import { initPlugin } from '../src/init';
-import { loginPayload, registerPayload } from './utils/auth.e2e';
-import { teacherPayload } from './utils/teacher.e2e';
+import { loginPayload, registerPayload } from './mocks/auth.e2e-mock';
+import { classPayload } from './mocks/class.e2e-mock';
+import { teacherPayload } from './mocks/teacher.e2e-mock';
 
 describe('Class Features', () => {
   let app: NestFastifyApplication;
   let token = '';
   let csrf_key = '';
-  const classPayload = {
-    name: faker.location.city(),
-    teacher_id: 1,
-  };
   let newItem: Class;
   let userKey = '';
   let userToken = 'Bearer ';
@@ -39,8 +35,9 @@ describe('Class Features', () => {
     if (response.statusCode === 200) {
       token = response.text;
       csrf_key =
-        response.headers['set-cookie']
-          ?.find((cookieStr: string) => cookieStr.includes('csrf_key'))
+        response
+          .get('Set-Cookie')
+          .find((cookieStr: string) => cookieStr.includes('csrf_key'))
           ?.split(';')[0] ?? '';
     }
 
@@ -66,8 +63,9 @@ describe('Class Features', () => {
 
     if (response.statusCode === 200) {
       userKey =
-        response.headers['set-cookie']
-          ?.find((cookieStr: string) => cookieStr.includes('userKey'))
+        response
+          .get('Set-Cookie')
+          .find((cookieStr: string) => cookieStr.includes('userKey'))
           ?.split(';')[0] ?? '';
       userToken += response.body.data.token;
     }

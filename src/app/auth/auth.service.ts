@@ -9,7 +9,7 @@ import { User } from '@prisma/client';
 import { genSaltSync, hashSync } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { FastifyReply } from 'fastify';
-import { CreateUser } from '../../interfaces/user.interfaces';
+import { CreateUser } from '../../interfaces/user.interface';
 import { PrismaService } from '../../shared/services/prisma.service';
 
 @Injectable()
@@ -106,6 +106,8 @@ export class AuthService implements OnModuleInit {
       },
       include: {
         school: true,
+        teacher: true,
+        student: true,
       },
     });
   }
@@ -147,6 +149,16 @@ export class AuthService implements OnModuleInit {
       });
     } catch {
       throw new BadRequestException('Username or email has been exists!');
+    }
+  }
+
+  async deleteUser(id: number) {
+    try {
+      return await this.prisma.user.delete({
+        where: { id },
+      });
+    } catch {
+      throw new BadRequestException('Could not delete user!');
     }
   }
 }

@@ -1,5 +1,4 @@
 export interface GetClassQuery {
-  id: number;
   name: string;
 }
 

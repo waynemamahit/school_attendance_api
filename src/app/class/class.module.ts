@@ -10,6 +10,7 @@ export const classModuleMeta: ModuleMetadata = {
   imports: [TeacherModule, AbilityModule, AuthModule],
   controllers: [ClassController],
   providers: [ClassService, PrismaService],
+  exports: [ClassService],
 };
 @Module(classModuleMeta)
 export class ClassModule {}

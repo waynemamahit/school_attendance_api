@@ -6,7 +6,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { appModuleMeta } from '../src/app/app.module';
 import { initPlugin } from '../src/init';
-import { loginPayload, registerPayload } from './utils/auth.e2e';
+import { loginPayload, registerPayload } from './mocks/auth.e2e-mock';
 
 describe('Authentication and Authorization', () => {
   let app: NestFastifyApplication;
@@ -48,7 +48,8 @@ describe('Authentication and Authorization', () => {
     if (response.statusCode === 200) {
       token = response.text;
       csrf_key =
-        response.headers['set-cookie']
+        response
+          .get('Set-Cookie')
           .find((cookieStr: string) => cookieStr.includes('csrf_key'))
           ?.split('=')[1]
           ?.split(';')[0] ?? '';

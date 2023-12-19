@@ -8,7 +8,7 @@ import { School } from '@prisma/client';
 import request from 'supertest';
 import { appModuleMeta } from '../src/app/app.module';
 import { initPlugin } from '../src/init';
-import { loginPayload, registerPayload } from './utils/auth.e2e';
+import { loginPayload, registerPayload } from './mocks/auth.e2e-mock';
 
 describe('Class Features', () => {
   let app: NestFastifyApplication;
@@ -34,11 +34,14 @@ describe('Class Features', () => {
   afterAll(() => app.close());
 
   it('should get csrf token', async () => {
-    const response = await request(app.getHttpServer()).get('/csrf');
+    const response: request.Response = await request(app.getHttpServer()).get(
+      '/csrf',
+    );
     if (response.statusCode === 200) {
       token = response.text;
       csrf_key =
-        response.headers['set-cookie']
+        response
+          .get('Set-Cookie')
           ?.find((cookieStr: string) => cookieStr.includes('csrf_key'))
           ?.split(';')[0] ?? '';
     }
@@ -58,8 +61,9 @@ describe('Class Features', () => {
 
     if (response.statusCode === 200) {
       userKey =
-        response.headers['set-cookie']
-          ?.find((cookieStr: string) => cookieStr.includes('userKey'))
+        response
+          .get('Set-Cookie')
+          .find((cookieStr: string) => cookieStr.includes('userKey'))
           ?.split(';')[0] ?? '';
       userToken += response.body.data.token;
     }
@@ -134,8 +138,9 @@ describe('Class Features', () => {
 
     if (response.statusCode === 200) {
       userKey =
-        response.headers['set-cookie']
-          ?.find((cookieStr: string) => cookieStr.includes('userKey'))
+        response
+          .get('Set-Cookie')
+          .find((cookieStr: string) => cookieStr.includes('userKey'))
           ?.split(';')[0] ?? '';
       userToken += response.body.data.token;
     }

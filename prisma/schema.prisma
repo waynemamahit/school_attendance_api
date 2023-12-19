@@ -103,7 +103,7 @@ model Class {
   school_id  Int
   created_at DateTime   @default(now())
   updated_at DateTime   @default(now())
-  course     Course[]
+  courses    Course[]
   schedules  Schedule[]
   students   Student[]
 }
@@ -117,7 +117,7 @@ model Course {
   class_id       Int?
   created_at     DateTime        @default(now())
   updated_at     DateTime        @default(now())
-  schedule       Schedule[]
+  schedules      Schedule[]
   teachers       TeacherCourse[]
 }
 

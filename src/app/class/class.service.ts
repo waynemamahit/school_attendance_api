@@ -15,7 +15,7 @@ import { PrismaService } from '../../shared/services/prisma.service';
 export class ClassService {
   constructor(private prisma: PrismaService) {}
 
-  async getClasses(query: GetClassQuery) {
+  async getClasses(school_id: number, query: GetClassQuery) {
     const cond = Object.entries(query).map(
       ([key, value]: [string, string]) => ({
         [key]: value,
@@ -27,6 +27,7 @@ export class ClassService {
         cond.length > 0
           ? {
               OR: cond,
+              school_id,
             }
           : {},
     });

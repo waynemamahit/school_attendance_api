@@ -45,10 +45,14 @@ export class ClassController implements OnModuleInit {
 
   @Get()
   @UseGuards(AbilityGuard('class', 'get'))
-  async getClasses(@Query() query: GetClassQuery, @Res() res: FastifyReply) {
+  async getClasses(
+    @Query() query: GetClassQuery,
+    @Req() req: FastifyRequest & AuthRequest,
+    @Res() res: FastifyReply,
+  ) {
     return res.status(200).send(
       new ApiResponse({
-        data: await this.service.getClasses(query),
+        data: await this.service.getClasses(req.auth.user.school_id, query),
       }),
     );
   }
@@ -58,13 +62,18 @@ export class ClassController implements OnModuleInit {
   @UsePipes(new ZodPipe(classSchemaDto))
   async createClass(
     @Body() dto: ClassDto,
-    @Req() req: FastifyRequest & AuthRequest,
+    @Req()
+    {
+      auth: {
+        user: { school_id },
+      },
+    }: FastifyRequest & AuthRequest,
     @Res() res: FastifyReply,
   ) {
-    await this.teacherService.showTeacher(dto.teacher_id);
+    await this.teacherService.showTeacher(school_id, dto.teacher_id);
     const data = await this.service.createClass({
       ...(dto as Class),
-      school_id: req.auth.user.school_id,
+      school_id,
     });
 
     return res.status(201).send(
@@ -80,19 +89,14 @@ export class ClassController implements OnModuleInit {
   @UseGuards(AbilityGuard('class', 'show'))
   async showClass(
     @Param('id', ParseIntPipe) id: number,
-    @Req()
-    {
-      auth: {
-        user: { school_id },
-      },
-    }: FastifyRequest & AuthRequest,
+    @Req() req: FastifyRequest & AuthRequest,
     @Res() res: FastifyReply,
   ) {
     return res.status(200).send(
       new ApiResponse({
         data: await this.service.showClass({
           id,
-          school_id,
+          school_id: req.auth.user.school_id,
         }),
         message: 'OK',
       }),
@@ -104,10 +108,20 @@ export class ClassController implements OnModuleInit {
   async updateClass(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodPipe(classSchemaDto)) dto: ClassDto,
+    @Req()
+    {
+      auth: {
+        user: { school_id },
+      },
+    }: FastifyRequest & AuthRequest,
     @Res() res: FastifyReply,
   ) {
-    await this.teacherService.showTeacher(dto.teacher_id);
-    const data = await this.service.updateClassById(id, dto as Class);
+    await this.teacherService.showTeacher(school_id, dto.teacher_id);
+
+    const data = await this.service.updateClassById(id, {
+      ...dto,
+      school_id,
+    } as Class);
 
     return res.status(201).send(
       new ApiResponse({
@@ -122,17 +136,12 @@ export class ClassController implements OnModuleInit {
   @UseGuards(AbilityGuard('class', 'delete'))
   async deleteClass(
     @Param('id', ParseIntPipe) id: number,
-    @Req()
-    {
-      auth: {
-        user: { school_id },
-      },
-    }: FastifyRequest & AuthRequest,
+    @Req() req: FastifyRequest & AuthRequest,
     @Res() res: FastifyReply,
   ) {
     await this.service.showClass({
       id,
-      school_id,
+      school_id: req.auth.user.school_id,
     });
     const data = await this.service.deleteClass(id);
 

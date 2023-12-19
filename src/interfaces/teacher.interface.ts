@@ -1,7 +1,7 @@
-import { BaseUser } from './user.interfaces';
+import { BaseUser } from './user.interface';
 
 export interface GetTeacherQuery extends BaseUser {
-  id: string;
+  id_number: string;
 }
 
 export interface CreateTeacher {

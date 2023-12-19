@@ -23,9 +23,9 @@ import { ApiResponse } from '../../models/BaseResponse';
 import { ZodPipe } from '../../shared/pipes/zod.pipe';
 import {
   CreateTeacherDto,
-  UpdateTeacherDto,
+  TeacherDto,
   createTeacherSchemaDto,
-  updateTeacherSchemaDto,
+  teacherSchemaDto,
 } from '../../shared/pipes/zod/teacher.validation';
 import { AbilityGuard } from '../ability/ability.guard';
 import { AbilityService } from '../ability/ability.service';
@@ -38,7 +38,7 @@ import { TeacherService } from './teacher.service';
 export class TeacherController implements OnModuleInit {
   constructor(
     private service: TeacherService,
-    private authService: AuthService,
+    private auth: AuthService,
     private ability: AbilityService,
   ) {}
 
@@ -48,8 +48,12 @@ export class TeacherController implements OnModuleInit {
 
   @Get()
   @UseGuards(AbilityGuard('teacher', 'get'))
-  async getTeacher(@Query() query: GetTeacherQuery, @Res() res: FastifyReply) {
-    const data = await this.service.getTeachers(query);
+  async getTeacher(
+    @Query() query: GetTeacherQuery,
+    @Req() req: FastifyRequest & AuthRequest,
+    @Res() res: FastifyReply,
+  ) {
+    const data = await this.service.getTeachers(req.auth.user.school_id, query);
 
     return res.status(200).send(
       new ApiResponse({
@@ -68,7 +72,7 @@ export class TeacherController implements OnModuleInit {
     @Res() res: FastifyReply,
   ) {
     const password = dto?.password ?? randomBytes(8).toString('hex');
-    const newUser = await this.authService.createUser({
+    const newUser = await this.auth.createUser({
       name: dto.name,
       email: dto.email,
       username: dto.username,
@@ -96,11 +100,12 @@ export class TeacherController implements OnModuleInit {
   @UseGuards(AbilityGuard('teacher', 'show'))
   async showTeacher(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: FastifyRequest & AuthRequest,
     @Res() res: FastifyReply,
   ) {
     return res.status(200).send(
       new ApiResponse({
-        data: await this.service.showTeacher(id),
+        data: await this.service.showTeacher(req.auth.user.school_id, id),
         message: 'OK',
       }),
     );
@@ -110,12 +115,13 @@ export class TeacherController implements OnModuleInit {
   @UseGuards(AbilityGuard('teacher', 'update'))
   async updateTeacher(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ZodPipe(updateTeacherSchemaDto)) dto: UpdateTeacherDto,
+    @Body(new ZodPipe(teacherSchemaDto)) dto: TeacherDto,
+    @Req() req: FastifyRequest & AuthRequest,
     @Res() res: FastifyReply,
   ) {
-    const teacher = await this.service.showTeacher(id);
+    const teacher = await this.service.showTeacher(req.auth.user.school_id, id);
 
-    await this.authService.updateUser(teacher.user_id, {
+    await this.auth.updateUser(teacher.user_id, {
       name: dto.name,
       username: dto.username,
       email: dto.email,
@@ -138,9 +144,11 @@ export class TeacherController implements OnModuleInit {
   @UseGuards(AbilityGuard('teacher', 'delete'))
   async deleteTeacher(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: FastifyRequest & AuthRequest,
     @Res() res: FastifyReply,
   ) {
-    const data = await this.service.deleteTeacher(id);
+    const data = await this.service.showTeacher(req.auth.user.school_id, id);
+    await this.auth.deleteUser(data.user_id);
 
     return res.status(200).send(
       new ApiResponse({
