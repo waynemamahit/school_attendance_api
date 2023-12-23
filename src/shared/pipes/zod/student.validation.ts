@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const studentPayloadSchemaDto = z
+export const studentSchemaDto = z
   .object({
     name: z.string(),
     id_number: z.string(),
@@ -11,4 +11,4 @@ export const studentPayloadSchemaDto = z
   })
   .required();
 
-export type StudentPayloadDto = z.infer<typeof studentPayloadSchemaDto>;
+export type StudentDto = z.infer<typeof studentSchemaDto>;

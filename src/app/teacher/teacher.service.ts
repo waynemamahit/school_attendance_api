@@ -47,7 +47,11 @@ export class TeacherService {
     try {
       const result = await this.prisma.teacher.create({
         data,
+        include: {
+          user: true,
+        },
       });
+      delete result.user.password;
 
       return result;
     } catch {
@@ -77,10 +81,16 @@ export class TeacherService {
 
   async updateTeacherById(id: number, data: any) {
     try {
-      return await this.prisma.teacher.update({
+      const result = await this.prisma.teacher.update({
         where: { id },
         data,
+        include: {
+          user: true,
+        },
       });
+      delete result.user.password;
+
+      return result;
     } catch (error) {
       throw new BadRequestException('ID Number or User has been exists!');
     }
@@ -88,12 +98,15 @@ export class TeacherService {
 
   async deleteTeacher(id: number) {
     try {
-      return await this.prisma.teacher.delete({
+      const result = await this.prisma.teacher.delete({
         where: { id },
         include: {
           user: true,
         },
       });
+      delete result.user.password;
+
+      return result;
     } catch {
       throw new BadRequestException("Couldn't found delete teacher!");
     }

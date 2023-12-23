@@ -17,13 +17,14 @@ import {
 import { Student, User } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { object } from 'zod';
 import { AuthRequest } from '../../interfaces/auth.interface';
 import { GetStudentQuery } from '../../interfaces/student.interface';
 import { ApiResponse } from '../../models/BaseResponse';
 import { ZodPipe } from '../../shared/pipes/zod.pipe';
 import {
-  StudentPayloadDto,
-  studentPayloadSchemaDto,
+  StudentDto,
+  studentSchemaDto,
 } from '../../shared/pipes/zod/student.validation';
 import { AbilityGuard } from '../ability/ability.guard';
 import { AbilityService } from '../ability/ability.service';
@@ -32,7 +33,6 @@ import { AuthService } from '../auth/auth.service';
 import { ClassService } from '../class/class.service';
 import { SchoolService } from '../school/school.service';
 import { StudentService } from './student.service';
-import { object } from 'zod';
 
 @Controller('student')
 @UseGuards(AuthGuard())
@@ -68,7 +68,7 @@ export class StudentController {
 
   @Post()
   @UseGuards(AbilityGuard('student', 'create'))
-  @UsePipes(new ZodPipe(studentPayloadSchemaDto))
+  @UsePipes(new ZodPipe(studentSchemaDto))
   async createStudent(
     @Req()
     {
@@ -76,7 +76,7 @@ export class StudentController {
         user: { school_id, role_id, email, username },
       },
     }: FastifyRequest & AuthRequest,
-    @Body() dto: StudentPayloadDto,
+    @Body() dto: StudentDto,
     @Res() res: FastifyReply,
   ) {
     await this.school.showSchool(school_id);
@@ -139,7 +139,7 @@ export class StudentController {
   @UseGuards(AbilityGuard('student', 'update'))
   async updateStudent(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ZodPipe(studentPayloadSchemaDto)) dto: StudentPayloadDto,
+    @Body(new ZodPipe(studentSchemaDto)) dto: StudentDto,
     @Req()
     {
       auth: {
