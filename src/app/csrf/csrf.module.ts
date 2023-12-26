@@ -32,6 +32,7 @@ export class CsrfModule {
         { path: 'role/*', method: RequestMethod.ALL },
         { path: 'school/*', method: RequestMethod.ALL },
         { path: 'student/*', method: RequestMethod.ALL },
+        { path: 'course/*', method: RequestMethod.ALL },
       );
   }
 }
