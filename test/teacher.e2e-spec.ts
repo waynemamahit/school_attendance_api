@@ -16,7 +16,6 @@ describe('Teacher Features', () => {
 
   it('should get all teacher', async () => {
     teacher.auth = await initAuth(app);
-
     const response = await teacher.getTeachers();
 
     return expect(response.statusCode).toBe(200);

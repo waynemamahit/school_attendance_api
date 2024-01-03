@@ -10,6 +10,7 @@ export const courseModuleMeta: ModuleMetadata = {
   imports: [AuthModule, AbilityModule, ClassModule],
   controllers: [CourseController],
   providers: [CourseService, PrismaService],
+  exports: [CourseService],
 };
 
 @Module(courseModuleMeta)

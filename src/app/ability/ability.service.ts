@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RoleAbility } from '@prisma/client';
 import { GetAbilityQuery } from 'src/interfaces/ability.interface';
+import { CreateAbilityDto } from 'src/shared/pipes/zod/ability.validation';
 import { PrismaService } from '../../shared/services/prisma.service';
+import { RoleAbility } from '@prisma/client';
 
 @Injectable()
 export class AbilityService {
@@ -80,7 +81,7 @@ export class AbilityService {
     return await this.prisma.role.findMany({});
   }
 
-  async createAbility(data: RoleAbility) {
+  async createAbility(data: CreateAbilityDto) {
     try {
       await this.prisma.ability.findFirstOrThrow({
         where: { id: data.ability_id },
@@ -90,7 +91,7 @@ export class AbilityService {
       });
 
       return await this.prisma.roleAbility.create({
-        data,
+        data: data as RoleAbility,
       });
     } catch {
       throw new BadRequestException('Ability and role has been exists!');

@@ -117,12 +117,12 @@ CREATE TABLE `Schedule` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `day` ENUM('MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN') NOT NULL,
     `semester` TINYINT NOT NULL,
-    `class_id` INTEGER NULL,
     `course_id` INTEGER NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `classId` INTEGER NULL,
 
-    UNIQUE INDEX `Schedule_class_id_course_id_key`(`class_id`, `course_id`),
+    UNIQUE INDEX `Schedule_course_id_day_key`(`course_id`, `day`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -185,10 +185,10 @@ ALTER TABLE `TeacherCourse` ADD CONSTRAINT `TeacherCourse_course_id_fkey` FOREIG
 ALTER TABLE `TeacherCourse` ADD CONSTRAINT `TeacherCourse_teacher_id_fkey` FOREIGN KEY (`teacher_id`) REFERENCES `Teacher`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Schedule` ADD CONSTRAINT `Schedule_class_id_fkey` FOREIGN KEY (`class_id`) REFERENCES `Class`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Schedule` ADD CONSTRAINT `Schedule_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Schedule` ADD CONSTRAINT `Schedule_course_id_fkey` FOREIGN KEY (`course_id`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `Schedule` ADD CONSTRAINT `Schedule_classId_fkey` FOREIGN KEY (`classId`) REFERENCES `Class`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Student` ADD CONSTRAINT `Student_class_id_fkey` FOREIGN KEY (`class_id`) REFERENCES `Class`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
