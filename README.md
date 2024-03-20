@@ -8,10 +8,23 @@
 
 School Attendance API Service built with [Nest](https://github.com/nestjs/nest).
 
+## Requirements
+Node 20.11.1
+
 ## Installation
 
 ```bash
 $ npm install
+```
+
+## Migrate DB
+```bash
+$ prisma migrate dev
+```
+
+## Reset migration DB
+```bash
+$ prisma migrate reset
 ```
 
 ## Running the app
@@ -21,7 +34,7 @@ $ npm install
 $ npm run start
 
 # watch mode
-$ npm run start:dev
+$ npm run dev
 
 # production mode
 $ npm run start:prod
