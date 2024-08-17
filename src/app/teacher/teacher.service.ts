@@ -91,7 +91,7 @@ export class TeacherService {
       delete result.user.password;
 
       return result;
-    } catch (error) {
+    } catch {
       throw new BadRequestException('ID Number or User has been exists!');
     }
   }

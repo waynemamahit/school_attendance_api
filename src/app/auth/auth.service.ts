@@ -20,7 +20,7 @@ export class AuthService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    if ((await this.prisma.role.count()) === 0) {
+    if ((await this.prisma?.role?.count()) === 0) {
       try {
         await this.prisma.role.createMany({
           data: ['system', 'admin', 'teacher', 'student'].map((name) => ({
@@ -78,7 +78,7 @@ export class AuthService implements OnModuleInit {
           },
         });
         console.log('Super Admin has been created!');
-      } catch (error) {
+      } catch {
         console.log('Super Admin has been exists!');
       }
     }

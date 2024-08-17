@@ -86,7 +86,7 @@ export class StudentService {
       delete student.user.password;
 
       return student;
-    } catch (error) {
+    } catch {
       throw new BadRequestException('ID Number or User has been exists!');
     }
   }

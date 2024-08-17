@@ -48,7 +48,7 @@ export class ClassService {
       return await this.prisma.class.create({
         data,
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException(`Teacher could not take more one class!`);
     }
   }
@@ -59,7 +59,7 @@ export class ClassService {
         where: { id },
         data,
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException(`Teacher could not take more one class!`);
     }
   }

@@ -60,7 +60,7 @@ export class SchoolService {
         where: { id },
         data,
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException(
         'School name has been exists or parameters invalid!',
       );

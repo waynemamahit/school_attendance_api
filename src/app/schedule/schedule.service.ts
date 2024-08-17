@@ -45,7 +45,7 @@ export class ScheduleService {
           course: true,
         },
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException(
         `Could create schedule with day and course equal!`,
       );
@@ -76,7 +76,7 @@ export class ScheduleService {
         where: { id },
         data,
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException(
         `Could update schedule with day and course equal!`,
       );

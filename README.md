@@ -9,7 +9,7 @@
 School Attendance API Service built with [Nest](https://github.com/nestjs/nest).
 
 ## Requirements
-Node 20.12.2
+Node 20.16.0
 
 ## Installation
 

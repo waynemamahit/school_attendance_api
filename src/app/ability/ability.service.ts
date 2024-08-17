@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { RoleAbility } from '@prisma/client';
 import { GetAbilityQuery } from 'src/interfaces/ability.interface';
 import { CreateAbilityDto } from 'src/shared/pipes/zod/ability.validation';
 import { PrismaService } from '../../shared/services/prisma.service';
-import { RoleAbility } from '@prisma/client';
 
 @Injectable()
 export class AbilityService {
@@ -107,7 +107,7 @@ export class AbilityService {
           role: true,
         },
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException('Ability has been deleted or not found!');
     }
   }

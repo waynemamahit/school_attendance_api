@@ -47,7 +47,7 @@ export class CourseService {
       return await this.prisma.course.create({
         data,
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException(`Admin could not create class!`);
     }
   }
@@ -64,7 +64,7 @@ export class CourseService {
           course: true,
         },
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException('Course for teacher has been exists!');
     }
   }
@@ -92,7 +92,7 @@ export class CourseService {
         where: { id },
         data,
       });
-    } catch (error) {
+    } catch {
       throw new BadRequestException(`Teacher could not take more one class!`);
     }
   }
